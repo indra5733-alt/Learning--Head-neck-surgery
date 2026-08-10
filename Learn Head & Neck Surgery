@@ -9,7 +9,7 @@
   <!-- Google Fonts for Handwritten Aesthetic & Readability -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- HTML2PDF Library for Direct PDF Exporting -->
@@ -20,7 +20,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   
   <style>
-    /* Design Tokens & Theme Variable Rules */
     :root {
       --color-royal-blue: #1e40af;
       --color-dark-cyan: #0e7490;
@@ -62,7 +61,6 @@
       line-height: 1.6;
     }
 
-    /* Emphasis and Highlights */
     .emphasis-red {
       color: var(--color-crimson);
       font-weight: 700;
@@ -166,6 +164,8 @@
       border-radius: 12px;
       box-shadow: 3px 3px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
       position: relative;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
 
     .notebook-card::before {
@@ -179,7 +179,23 @@
       background: linear-gradient(to bottom, var(--color-royal-blue), var(--color-dark-cyan));
     }
 
-    /* Print Stylesheet for PDF Export */
+    /* Speech Wave Animation */
+    .sound-wave-bar {
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      background-color: #c084fc;
+      border-radius: 2px;
+      animation: wave 1s infinite ease-in-out;
+    }
+    .sound-wave-bar:nth-child(2) { animation-delay: 0.2s; }
+    .sound-wave-bar:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes wave {
+      0%, 100% { height: 6px; }
+      50% { height: 16px; }
+    }
+
     @media print {
       body {
         background: #ffffff !important;
@@ -195,8 +211,9 @@
       .notebook-card {
         border: 1px solid #ccc !important;
         box-shadow: none !important;
-        page-break-inside: avoid;
-        margin-bottom: 1.5rem !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 2rem !important;
       }
 
       .notebook-card::before {
@@ -223,17 +240,16 @@
 
       @page {
         margin: 1.5cm;
+        size: portrait;
       }
     }
   </style>
 </head>
 <body class="min-h-screen pb-16">
 
-  <!-- TOP APP NAVIGATION BAR (NO-PRINT) -->
   <header class="no-print sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <!-- Home Button -->
         <button onclick="goHome()" title="Go to Home" class="p-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg transition flex items-center justify-center">
           <i data-lucide="home" class="w-5 h-5"></i>
         </button>
@@ -247,48 +263,124 @@
         </div>
       </div>
 
-      <!-- Controls -->
       <div class="flex items-center space-x-2 sm:space-x-3">
-        <!-- Upload / New Topic Button -->
+        <button onclick="openAiChatModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="bot" class="w-4 h-4 text-indigo-600"></i>
+          <span class="hidden md:inline">AI Assistant</span>
+        </button>
+
+        <button onclick="openAiMcqModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="help-circle" class="w-4 h-4 text-emerald-600"></i>
+          <span class="hidden md:inline">AI MCQ Quiz</span>
+        </button>
+
+        <button onclick="openEmergencyModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-900 border border-red-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="siren" class="w-4 h-4 text-red-600"></i>
+          <span class="hidden md:inline">Emergency Protocols</span>
+        </button>
+
+        <button onclick="toggleAudioOverviewBar()" id="audioOverviewBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+          <span>Audio Overview</span>
+        </button>
+
         <button onclick="openUploadModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-sm transition">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span>+ Upload / New Topic</span>
         </button>
 
-        <!-- Search Box -->
-        <div class="relative hidden lg:block w-44">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input type="text" id="searchInput" onkeyup="filterNotes()" placeholder="Search terms..." 
-            class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-100 border border-slate-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-        </div>
-
-        <!-- High Yield Filter Toggle -->
-        <button onclick="toggleHighYield()" id="hyBtn" class="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 rounded-lg hover:bg-amber-100 transition">
-          <i data-lucide="sparkles" class="w-4 h-4 text-amber-600"></i>
-          <span>Highlight HY</span>
-        </button>
-
-        <!-- Direct PDF Download Button -->
         <button id="downloadPdfBtn" onclick="downloadPDF()" class="flex items-center space-x-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow-sm transition">
           <i data-lucide="file-down" class="w-4 h-4"></i>
           <span>Download PDF</span>
-        </button>
-
-        <!-- Print / Browser PDF Button -->
-        <button onclick="window.print()" class="hidden md:flex items-center space-x-2 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white font-medium text-xs sm:text-sm rounded-lg shadow-sm transition">
-          <i data-lucide="printer" class="w-4 h-4"></i>
-          <span>Print</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN WRAPPER -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
+  <div id="audioOverviewBar" class="no-print hidden sticky top-16 z-40 bg-slate-900/95 backdrop-blur-md text-white px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 shadow-md">
+    <div class="flex items-center space-x-3 text-xs">
+      <div id="soundWaveAnim" class="hidden items-center space-x-1">
+        <span class="sound-wave-bar"></span>
+        <span class="sound-wave-bar"></span>
+        <span class="sound-wave-bar"></span>
+      </div>
+      <span class="font-bold text-purple-300 flex items-center space-x-1">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>Google AI Neural Audio Overview:</span>
+      </span>
+      <span id="audioTrackTitle" class="truncate max-w-xs text-slate-200 font-mono font-semibold">Carotid Body Tumors</span>
+    </div>
 
-    <!-- SIDEBAR NAVIGATION (NO-PRINT) -->
+    <div class="flex items-center space-x-2 text-xs">
+      <select id="neuralVoiceSelect" class="bg-slate-800 text-amber-300 text-xs px-2.5 py-1 rounded-lg border border-slate-700 font-bold focus:outline-none">
+        <option value="Kore" selected>✨ Kore (Warm & Natural Female)</option>
+        <option value="Puck">✨ Puck (Engaging Male)</option>
+        <option value="Aoede">✨ Aoede (Expressive Educational Female)</option>
+        <option value="Fenrir">✨ Fenrir (Deep Resonant Male)</option>
+        <option value="Charon">✨ Charon (Calm Medical Male)</option>
+        <option value="Algenib">✨ Algenib (Clear Crisp Female)</option>
+      </select>
+
+      <button onclick="generateAndPlayAudioOverview()" id="playOverviewBtn" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1">
+        <i data-lucide="play" class="w-3.5 h-3.5"></i>
+        <span id="playOverviewBtnText">Generate & Play Overview</span>
+      </button>
+
+      <button onclick="stopAudioOverview()" class="px-3 py-1 bg-red-600/80 hover:bg-red-600 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1">
+        <i data-lucide="square" class="w-3.5 h-3.5"></i>
+        <span>Stop</span>
+      </button>
+
+      <select id="speechRateSelect" onchange="setAudioSpeed(this.value)" class="bg-slate-800 text-purple-300 text-xs px-2 py-1 rounded-lg border border-slate-700 font-bold focus:outline-none">
+        <option value="0.75">0.75x (Slow)</option>
+        <option value="1.0" selected>1.0x (Normal)</option>
+        <option value="1.25">1.25x (Fast)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 grid grid-cols-1 lg:grid-cols-4 gap-8">
     <aside class="no-print lg:col-span-1 space-y-6">
-      <!-- TOPIC LIBRARY WITH CATEGORY FILTER -->
+      <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2.5">
+        <h3 class="font-bold text-slate-800 border-b pb-2 flex items-center space-x-2 text-xs uppercase tracking-wider">
+          <i data-lucide="stethoscope" class="w-4 h-4 text-blue-600"></i>
+          <span>Interactive Clinical Suite</span>
+        </h3>
+        <div class="grid grid-cols-1 gap-2">
+          <button onclick="openPlaybookModal()" class="w-full flex items-center justify-between py-2 px-3 bg-blue-50 text-blue-900 border border-blue-200 rounded-lg text-xs font-bold hover:bg-blue-100 transition">
+            <span class="flex items-center space-x-2">
+              <i data-lucide="book-marked" class="w-4 h-4 text-blue-600"></i>
+              <span>Operative Surgical Playbook</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-blue-400"></i>
+          </button>
+
+          <button onclick="openEmergencyModal()" class="w-full flex items-center justify-between py-2 px-3 bg-red-50 text-red-900 border border-red-200 rounded-lg text-xs font-bold hover:bg-red-100 transition">
+            <span class="flex items-center space-x-2">
+              <i data-lucide="siren" class="w-4 h-4 text-red-600"></i>
+              <span>Emergency Protocols</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-red-400"></i>
+          </button>
+
+          <button onclick="openAiDiffDxModal()" class="w-full flex items-center justify-between py-2 px-3 bg-indigo-50 text-indigo-900 border border-indigo-200 rounded-lg text-xs font-bold hover:bg-indigo-100 transition">
+            <span class="flex items-center space-x-2">
+              <i data-lucide="stethoscope" class="w-4 h-4 text-indigo-600"></i>
+              <span>AI Differential Dx Builder</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-indigo-400"></i>
+          </button>
+
+          <button onclick="toggleFlashcardModal()" class="w-full flex items-center justify-between py-2 px-3 bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-lg text-xs font-bold hover:bg-cyan-100 transition">
+            <span class="flex items-center space-x-2">
+              <i data-lucide="brain-circuit" class="w-4 h-4 text-cyan-600"></i>
+              <span>Interactive Self-Quiz</span>
+            </span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-cyan-400"></i>
+          </button>
+        </div>
+      </div>
+
       <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
         <div class="flex items-center justify-between mb-3 border-b pb-2">
           <h3 class="font-bold text-slate-800 flex items-center space-x-2 text-sm">
@@ -298,21 +390,16 @@
           <span id="topicCountBadge" class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-semibold">0 Topics</span>
         </div>
 
-        <!-- Category Filter Selector -->
         <div class="mb-3">
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Filter Category</label>
           <select id="categoryFilterSelect" onchange="renderTopicList()" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-slate-700">
-            <!-- Populated by JS -->
           </select>
         </div>
 
-        <!-- Collapsible Category Tabs Container -->
-        <div id="topicList" class="space-y-2 text-xs sm:text-sm font-medium max-h-[40vh] overflow-y-auto pr-1">
-          <!-- Populated by JS -->
+        <div id="topicList" class="space-y-2 text-xs sm:text-sm font-medium max-h-[35vh] overflow-y-auto pr-1">
         </div>
       </div>
 
-      <!-- ACTIVE TOPIC TABLE OF CONTENTS -->
       <div class="sticky top-24 bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
         <div>
           <h3 class="font-bold text-slate-700 mb-3 flex items-center space-x-2 border-b pb-2 text-sm">
@@ -320,19 +407,9 @@
             <span>Topic Index</span>
           </h3>
           <nav id="sectionToc" class="space-y-1 text-xs sm:text-sm font-medium text-slate-600 max-h-[20vh] overflow-y-auto">
-            <!-- Populated by JS -->
           </nav>
         </div>
 
-        <!-- Quick Flashcards Toggle -->
-        <div class="pt-2 border-t border-slate-100">
-          <button onclick="toggleFlashcardModal()" class="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-lg text-xs font-semibold hover:bg-cyan-100 transition">
-            <i data-lucide="brain-circuit" class="w-4 h-4"></i>
-            <span>Interactive Self-Quiz</span>
-          </button>
-        </div>
-
-        <!-- Backup Vault Export / Import / Reset -->
         <div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
           <div class="flex items-center justify-between font-bold text-slate-700 text-[11px] uppercase tracking-wider">
             <span class="flex items-center space-x-1">
@@ -360,13 +437,224 @@
       </div>
     </aside>
 
-    <!-- MAIN STUDY NOTES CONTAINER -->
     <main class="lg:col-span-3 space-y-8" id="notesContent">
-      <!-- Active Note dynamically rendered here by JS -->
     </main>
   </div>
 
-  <!-- UPLOAD / AI NOTE GENERATOR MODAL (NO-PRINT) -->
+  <div id="playbookModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] p-6 shadow-2xl border border-slate-200 relative overflow-y-auto">
+      <button onclick="closePlaybookModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 text-blue-800 mb-4 border-b pb-3">
+        <div class="p-2 bg-blue-100 rounded-lg">
+          <i data-lucide="book-marked" class="w-6 h-6 text-blue-600"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-800">Operative Head & Neck Surgical Playbook</h3>
+          <p class="text-xs text-slate-500">Step-by-step procedural checklists, landmark safety boundaries, and nerve preservation steps.</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs font-sans">
+        <div class="flex flex-wrap gap-2 border-b pb-3" id="playbookTabs">
+          <button onclick="switchPlaybookProc('thyroidectomy')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-bold transition">Total Thyroidectomy</button>
+          <button onclick="switchPlaybookProc('parotidectomy')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold transition text-slate-700">Superficial Parotidectomy</button>
+          <button onclick="switchPlaybookProc('neckdissection')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold transition text-slate-700">Neck Dissection (SND)</button>
+          <button onclick="switchPlaybookProc('tracheostomy')" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold transition text-slate-700">Tracheostomy</button>
+        </div>
+        <div id="playbookDetailBox" class="space-y-3">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="emergencyModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] p-6 shadow-2xl border border-slate-200 relative overflow-y-auto">
+      <button onclick="closeEmergencyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 text-red-800 mb-4 border-b pb-3">
+        <div class="p-2 bg-red-100 rounded-lg">
+          <i data-lucide="siren" class="w-6 h-6 text-red-600"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-800">Post-Op Emergency Protocols & Decision Trees</h3>
+          <p class="text-xs text-slate-500">Rapid action management algorithms for post-operative surgical crises.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
+        <div class="p-4 bg-red-50/70 border border-red-200 rounded-xl space-y-2">
+          <h4 class="font-bold text-red-900 text-sm flex items-center space-x-2">
+            <i data-lucide="alert-octagon" class="w-4 h-4 text-red-600"></i>
+            <span>Post-Thyroidectomy Hematoma</span>
+          </h4>
+          <p class="text-slate-700 leading-relaxed font-medium">Tense swelling, stridor, respiratory distress.</p>
+          <div class="bg-white p-2.5 rounded-lg border border-red-200 space-y-1 text-[11px] text-slate-800">
+            <strong>Action Steps:</strong>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Call for Senior Help & Airway Cart immediately.</li>
+              <li><strong class="text-red-700">Cut skin sutures & open clips at bedside.</strong></li>
+              <li>Evacuate blood clots with fingers to relieve airway pressure.</li>
+              <li>Transfer to OR for formal hemostasis under light anesthesia.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="p-4 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2">
+          <h4 class="font-bold text-amber-900 text-sm flex items-center space-x-2">
+            <i data-lucide="droplet" class="w-4 h-4 text-amber-600"></i>
+            <span>Thoracic Duct Chyle Leak</span>
+          </h4>
+          <p class="text-slate-700 leading-relaxed font-medium">Milky drain output (>500mL/day = High Output).</p>
+          <div class="bg-white p-2.5 rounded-lg border border-amber-200 space-y-1 text-[11px] text-slate-800">
+            <strong>Management:</strong>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Low output (<500mL): Medium-chain triglyceride (MCT) diet / NPO.</li>
+              <li>Apply pressure dressing & continuous negative suction.</li>
+              <li>Octreotide / Somatostatin therapy.</li>
+              <li>High output (>1000mL x 5d): OR re-exploration / Thoracic duct ligation.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="p-4 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-2">
+          <h4 class="font-bold text-indigo-900 text-sm flex items-center space-x-2">
+            <i data-lucide="activity" class="w-4 h-4 text-indigo-600"></i>
+            <span>Microvascular Flap Congestion</span>
+          </h4>
+          <p class="text-slate-700 leading-relaxed font-medium">Dark purple, brisk pinprick capillary refill (<1 sec) = Venous Occlusion.</p>
+          <div class="bg-white p-2.5 rounded-lg border border-indigo-200 space-y-1 text-[11px] text-slate-800">
+            <strong>Action Plan:</strong>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Check neck dressings / tracheostomy ties for constriction.</li>
+              <li>Position head neutral (avoid neck torsion).</li>
+              <li>Immediate operative re-exploration for microvascular revision.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="p-4 bg-red-100/70 border border-red-300 rounded-xl space-y-2">
+          <h4 class="font-bold text-red-950 text-sm flex items-center space-x-2">
+            <i data-lucide="flame" class="w-4 h-4 text-red-700"></i>
+            <span>Carotid Blowout Syndrome</span>
+          </h4>
+          <p class="text-slate-700 leading-relaxed font-medium">Sentinel bleed from necrotic irradiated neck wound.</p>
+          <div class="bg-white p-2.5 rounded-lg border border-red-300 space-y-1 text-[11px] text-slate-800">
+            <strong>Emergency Steps:</strong>
+            <ol class="list-decimal list-inside space-y-1">
+              <li>Direct manual compression with gauze over carotid.</li>
+              <li>Establish 2 large-bore IVs & rapid fluid/blood resuscitation.</li>
+              <li>Emergency Endovascular Stenting / Embolization vs Ligation.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="aiChatModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full h-[85vh] p-6 shadow-2xl border border-slate-200 flex flex-col relative">
+      <button onclick="closeAiChatModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 text-indigo-700 mb-3 border-b pb-3 flex-shrink-0">
+        <div class="p-2 bg-indigo-100 rounded-lg">
+          <i data-lucide="bot" class="w-6 h-6 text-indigo-600"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-800">Gemini Surgical AI Assistant</h3>
+          <p class="text-xs text-slate-500">Ask questions on active notes, guidelines, or research clinical literature with Google Search Grounding.</p>
+        </div>
+      </div>
+
+      <div id="aiChatStream" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-sans">
+        <div class="p-3 bg-indigo-50/80 rounded-lg border border-indigo-100 text-indigo-950">
+          <strong>👋 Welcome!</strong> I am your AI Surgical Assistant. Ask me anything regarding <span id="chatActiveTopicName" class="font-bold underline">the current surgical topic</span>, operative steps, guidelines, or clinical literature!
+        </div>
+      </div>
+
+      <form onsubmit="handleAiChatSubmit(event)" class="mt-3 pt-2 border-t border-slate-100 flex items-center space-x-2 flex-shrink-0">
+        <input type="text" id="aiChatInput" placeholder="Ask a question (e.g. 'What are the NCCN guidelines for Level VI dissection in PTC?')..." 
+          class="flex-1 px-4 py-2.5 text-xs bg-slate-100 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        <label class="flex items-center space-x-1 px-2.5 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl cursor-pointer text-[11px] font-bold text-slate-700">
+          <input type="checkbox" id="aiSearchGroundingToggle" checked class="rounded text-indigo-600 focus:ring-indigo-500">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>Search Web</span>
+        </label>
+        <button type="submit" id="aiChatSendBtn" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center space-x-1">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>Send</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="aiMcqModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] p-6 shadow-2xl border border-slate-200 flex flex-col relative overflow-y-auto">
+      <button onclick="closeAiMcqModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center justify-between border-b pb-3 mb-4 flex-shrink-0">
+        <div class="flex items-center space-x-3 text-emerald-700">
+          <div class="p-2 bg-emerald-100 rounded-lg">
+            <i data-lucide="help-circle" class="w-6 h-6 text-emerald-600"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-slate-800">AI High-Yield Board MCQ Generator</h3>
+            <p class="text-xs text-slate-500">Generates custom multiple choice questions for board exam review.</p>
+          </div>
+        </div>
+        <button onclick="generateAiMcqs()" id="refreshMcqBtn" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>Generate New MCQs</span>
+        </button>
+      </div>
+
+      <div id="mcqContainer" class="space-y-4 text-xs font-sans">
+        <p class="text-slate-500 italic text-center py-8">Click "Generate New MCQs" to create custom board questions for the active topic.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="aiDiffDxModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] p-6 shadow-2xl border border-slate-200 relative overflow-y-auto">
+      <button onclick="closeAiDiffDxModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 text-indigo-700 mb-4 border-b pb-3">
+        <div class="p-2 bg-indigo-100 rounded-lg">
+          <i data-lucide="stethoscope" class="w-6 h-6 text-indigo-600"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-lg text-slate-800">AI Differential Diagnosis & Workup Builder</h3>
+          <p class="text-xs text-slate-500">Input symptoms or clinical findings to generate prioritized differential diagnoses.</p>
+        </div>
+      </div>
+
+      <form onsubmit="handleDiffDxSubmit(event)" class="space-y-3 mb-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 uppercase tracking-wide mb-1">Clinical Presentation / Findings</label>
+          <input type="text" id="diffDxInput" placeholder="e.g. 55M, painless left parotid mass, 3cm, firm, skin dimpling, CN VII marginal mandibular weakness" required
+            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <button type="submit" id="genDiffDxBtn" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition flex items-center justify-center space-x-1">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>Build Differential Diagnosis Table</span>
+        </button>
+      </form>
+
+      <div id="diffDxResultContainer" class="text-xs font-sans">
+      </div>
+    </div>
+  </div>
+
   <div id="uploadModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
@@ -385,25 +673,20 @@
 
       <form id="uploadForm" onsubmit="handleNoteGeneration(event)" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Topic Title -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Topic Title</label>
             <input type="text" id="topicTitleInput" placeholder="e.g. Pleomorphic Adenoma of Parotid Gland" 
               class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
           </div>
 
-          <!-- Category Selector -->
           <div>
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">Select Category</label>
             <select id="topicCategorySelect" class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium">
-              <!-- Populated by JS -->
             </select>
           </div>
         </div>
 
-        <!-- File Upload or Direct Paste -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- File Upload Box -->
           <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-xl p-4 text-center bg-slate-50 transition cursor-pointer relative">
             <input type="file" id="fileInput" accept=".pdf,.docx,.doc,.txt,.md,.json" onchange="handleFileSelect(event)" class="absolute inset-0 opacity-0 cursor-pointer">
             <i data-lucide="file-up" class="w-8 h-8 mx-auto text-blue-500 mb-2"></i>
@@ -411,7 +694,6 @@
             <span class="text-[10px] text-slate-400">Supports multi-page documents & long chapters</span>
           </div>
 
-          <!-- Quick Tip Box -->
           <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
             <span class="font-bold flex items-center space-x-1">
               <i data-lucide="shield-alert" class="w-4 h-4 text-amber-600"></i>
@@ -421,7 +703,6 @@
           </div>
         </div>
 
-        <!-- Raw Text Input & Live Word Counter -->
         <div>
           <div class="flex items-center justify-between mb-1">
             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Extracted Note Text / Content</label>
@@ -439,7 +720,6 @@
             class="w-full p-3 text-xs font-mono bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed"></textarea>
         </div>
 
-        <!-- Submit Button & Loader -->
         <div class="pt-2 flex items-center justify-between">
           <span id="statusText" class="text-xs text-slate-500 font-medium">Ready to format</span>
           <button type="submit" id="generateBtn" class="flex items-center space-x-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg shadow transition">
@@ -451,7 +731,6 @@
     </div>
   </div>
 
-  <!-- INTERACTIVE QUIZ / FLASHCARD MODAL (NO-PRINT) -->
   <div id="flashcardModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative">
       <button onclick="toggleFlashcardModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
@@ -480,19 +759,17 @@
     </div>
   </div>
 
-  <!-- APPLICATION LOGIC WITH FIRESTORE & LOCAL STORAGE -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Configure PDF.js Worker
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'learning-head-neck-surgery-easy';
-    const STORAGE_KEY = 'head_neck_surgery_topics_v2';
+    let topicsData = {};
+    let activeTopicId = 'cbt';
+    let expandedCategories = new Set();
+    let currentCardIndex = 0;
+    let isFlipped = false;
+    let hyHighlighted = false;
 
     // Defined List of Head & Neck Surgery Categories
     const CATEGORIES = [
@@ -515,7 +792,6 @@
       "Miscellaneous / Others"
     ];
 
-    // Default Seed Data with Embedded Diagrams and Flowcharts
     const defaultSeedTopics = {
       'cbt': {
         id: 'cbt',
@@ -567,10 +843,9 @@
                 </div>
               </div>
 
-              <!-- DIAGNOSTIC FLOWCHART -->
               <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 my-6">
                 <h4 class="text-xs uppercase font-bold text-slate-500 mb-3 tracking-wider text-center font-sans">Diagnostic Workup Flowchart: Carotid Body Tumor</h4>
-                <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-sans">
                   <div class="flow-node text-blue-900">Painless Lateral Neck Mass</div>
                   <div class="flow-arrow">➔</div>
                   <div class="flow-node text-blue-900">Fontaine Sign (+)</div>
@@ -686,33 +961,6 @@
                   </tbody>
                 </table>
               </div>
-
-              <!-- VISUAL RADIOLOGICAL SCHEMATIC -->
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-4">
-                <h4 class="text-xs uppercase font-bold text-slate-500 mb-2 tracking-wider font-sans">Visual Schematic: Classical Radiological Markers</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center font-sans">
-                  <div class="p-3 bg-white rounded-lg border border-slate-200">
-                    <span class="font-bold text-blue-800 text-sm">The "Lyre Sign" (CTA/MRI)</span>
-                    <div class="my-2 text-xs font-mono text-slate-600 bg-slate-100 p-2 rounded">
-                        \\  ECA  / ICA<br>
-                         \\     /<br>
-                          \\(CBT)/  <-- Arterial splaying<br>
-                           |   |<br>
-                           |CCA|
-                    </div>
-                    <p class="text-xs text-slate-500">Outward splaying of internal and external carotid arteries.</p>
-                  </div>
-                  <div class="p-3 bg-white rounded-lg border border-slate-200">
-                    <span class="font-bold text-cyan-800 text-sm font-mono">"Salt & Pepper" Pattern (MRI)</span>
-                    <div class="my-2 text-xs font-mono text-slate-600 bg-slate-100 p-2 rounded">
-                      [ • . • . • . • ]<br>
-                      • Pepper = Low-intensity Flow Voids<br>
-                      . Salt = Hyperintense Hemorrhage / Stasis
-                    </div>
-                    <p class="text-xs text-slate-500">Diagnostic feature on T1/T2 weighted MRI for tumors &gt; 2 cm.</p>
-                  </div>
-                </div>
-              </div>
             `
           },
           {
@@ -753,20 +1001,6 @@
                 </table>
               </div>
 
-              <!-- BAROREFLEX PATHOPHYSIOLOGY DIAGRAM -->
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 my-4">
-                <h4 class="text-xs uppercase font-bold text-slate-500 mb-3 tracking-wider text-center font-sans">Pathophysiology Flowchart: Post-Surgical Baroreflex Failure</h4>
-                <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-sans">
-                  <div class="flow-node text-red-800">Bilateral CBT Excision</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-red-800">Loss of Carotid Sinus Baroreceptors</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-red-800">Loss of Afferent Sympathetic Inhibition</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-red-800">Volatile Blood Pressure Swings</div>
-                </div>
-              </div>
-
               <div class="p-4 bg-red-50 rounded-xl border border-red-200 text-sm handwritten-text">
                 <span class="font-bold text-red-900">The 270-Degree Encasement Rule:</span> MRI encasement of <span class="emphasis-red">≥ 270°</span> predicts inability to safely peel tumor off adventitia, indicating high likelihood of requiring <span class="underline-wavy">ICA resection & reconstruction</span>.
               </div>
@@ -803,131 +1037,579 @@
             a: "A residual carotid stump pressure of < 50 mmHg indicates severe cerebral hypoperfusion and mandatory bypass surgery (> 70 mmHg indicates safe collateral flow)."
           }
         ]
-      },
-      'thyroid': {
-        id: 'thyroid',
-        title: 'Thyroid Carcinoma (Malignant Thyroid Disease)',
-        category: 'Thyroid',
-        subtitle: 'Comparative Analysis & High-Yield Surgical Board Notes',
-        origin: 'Origin: Follicular Cells vs. Parafollicular C-Cells',
-        intro: 'Thyroid carcinomas comprise four principal histopathological subtypes: <span class="underline-wavy">Papillary, Follicular, Medullary, and Anaplastic</span>. Surgical management relies heavily on fine-needle aspiration cytopathology (Bethesda System), BRAF V600E gene profiling, and anatomical compartment neck dissection.',
-        sections: [
-          {
-            id: 'histopathology-comp',
-            icon: 'microscope',
-            title: '1. Histopathological Subtype Comparison',
-            html: `
-              <div class="overflow-x-auto mb-6">
-                <table class="w-full notes-table text-sm">
-                  <thead>
-                    <tr>
-                      <th>Feature</th>
-                      <th>Papillary (PTC)</th>
-                      <th>Follicular (FTC)</th>
-                      <th>Medullary (MTC)</th>
-                      <th>Anaplastic (ATC)</th>
-                    </tr>
-                  </thead>
-                  <tbody class="handwritten-text">
-                    <tr>
-                      <td class="font-bold text-blue-900">Frequency</td>
-                      <td><span class="underline-wavy">~85% (Most Common)</span></td>
-                      <td>~10-15%</td>
-                      <td>~3-5%</td>
-                      <td><span class="emphasis-red">~1-2% (Most Lethal)</span></td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-blue-900">Pathognomonic Histology</td>
-                      <td><span class="underline-wavy">Orphan Annie Eyes</span>, Psammoma bodies, Nuclear grooves</td>
-                      <td>Capsular & Vascular Invasion (FNA cannot distinguish adenoma vs. FTC)</td>
-                      <td><span class="underline-wavy">Amyloid Stroma</span> (Congo Red stain), C-cell hyperplasia</td>
-                      <td>Pleomorphic giant cells, bizarre mitoses, rapid invasive growth</td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-blue-900">Spread Pattern</td>
-                      <td><span class="underline-wavy">Lymphatic Spread</span> (Central Level VI neck nodes)</td>
-                      <td><span class="emphasis-red">Hematogenous Spread</span> (Bone, Lungs)</td>
-                      <td>Lymphatic & Hematogenous; associated with <span class="underline-wavy">MEN 2A/2B</span> (RET mutation)</td>
-                      <td>Extensive local invasion into trachea, esophagus, & carotid artery</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- THYROID NODULE WORKUP DIAGRAM -->
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 my-4">
-                <h4 class="text-xs uppercase font-bold text-slate-500 mb-3 tracking-wider text-center font-sans">Thyroid Nodule Workup & Decision Flowchart</h4>
-                <div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-sans">
-                  <div class="flow-node text-blue-900">Palpable Nodule / US Incidentaloma</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-blue-900">Serum TSH + Neck US (TI-RADS)</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-blue-900">FNA Cytology (Bethesda System)</div>
-                  <div class="flow-arrow">➔</div>
-                  <div class="flow-node text-red-900">Surgical Resection / Neck Dissection</div>
-                </div>
-              </div>
-            `
-          },
-          {
-            id: 'tumor-markers',
-            icon: 'flask-round',
-            title: '2. Biochemical Tumor Markers & Protocols',
-            html: `
-              <div class="callout-note p-4 mb-4">
-                <p class="text-sm text-sky-900 handwritten-text">
-                  <strong>> [!NOTE] Serum Serum Calcitonin & CEA:</strong> Medullary Thyroid Carcinoma (MTC) originates from calcitonin-secreting parafollicular C-cells. Serum calcitonin and CEA serve as mandatory diagnostic and post-op surveillance markers. Always screen for <span class="underline-wavy">Pheochromocytoma</span> (plasma metanephrines) before operating on MTC to prevent hypertensive crisis!
-                </p>
-              </div>
-
-              <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 handwritten-text text-sm space-y-2">
-                <p>• <strong>Thyroglobulin (Tg):</strong> Tumor surveillance marker for <em>Differentiated Thyroid Cancer (PTC & FTC)</em> ONLY after total thyroidectomy and radioiodine ablation.</p>
-                <p>• <strong>BRAF V600E Mutation:</strong> Strongly associated with aggressive Papillary Thyroid Carcinoma, extrathyroidal extension, and nodal recurrence.</p>
-              </div>
-            `
-          }
-        ],
-        summaryPoints: [
-          "Subtype Incidence: Papillary Thyroid Carcinoma (PTC) is the most common (~85%, excellent prognosis), whereas Anaplastic (ATC) is the most lethal (~1-2%).",
-          "Pathognomonic PTC Histology: Characterized by Orphan Annie eye optic-clear nuclei, nuclear grooves, intranuclear cytoplasmic inclusions, and Psammoma bodies.",
-          "PTC Spread Pattern: Spreads predominantly via lymphatics to Central Level VI and Lateral neck lymph node compartments.",
-          "FTC Diagnostic Limitation on FNA: Fine-Needle Aspiration CANNOT distinguish Follicular Adenoma from Carcinoma because diagnosis requires architectural proof of capsular/vascular invasion.",
-          "FTC Spread Pattern: Follicular carcinoma metastasizes predominantly hematogenously to bone and lungs.",
-          "Medullary Carcinoma (MTC) Origin: Arises from parafollicular C-cells; secretes Calcitonin and CEA as tumor markers. Associated with MEN 2A/2B (RET mutation).",
-          "Mandatory MTC Rule: ALWAYS screen for co-existing Pheochromocytoma (plasma free metanephrines) before operating on MTC to prevent fatal intraoperative hypertensive crisis!",
-          "MTC Histopathology: Displays sheets of polygonal or spindle cells surrounded by amyloid stroma that stains positive with Congo Red.",
-          "Thyroglobulin (Tg) Clinical Role: Serum Thyroglobulin is a surveillance marker for recurrent differentiated cancer (PTC/FTC) AFTER total thyroidectomy and ablation, NOT a pre-op diagnostic test.",
-          "BRAF V600E Mutation Significance: Point mutation strongly linked to aggressive PTC, extrathyroidal extension, advanced stage, and higher nodal recurrence rates."
-        ],
-        flashcards: [
-          {
-            q: "Why can't Fine Needle Aspiration (FNA) distinguish Follicular Adenoma from Follicular Carcinoma?",
-            a: "FNA evaluates cellular morphology only. Diagnosis of FTC requires demonstrating capsular or vascular invasion on final permanent histopathology."
-          },
-          {
-            q: "What pathognomonic histological features are seen in Papillary Thyroid Carcinoma?",
-            a: "Orphan Annie eye optic-clear nuclei, nuclear grooves, intranuclear cytoplasmic inclusions, and concentric calcified Psammoma bodies."
-          },
-          {
-            q: "What must be ruled out prior to surgical excision in Medullary Thyroid Carcinoma?",
-            a: "Pheochromocytoma (MEN 2A/2B syndrome) must be ruled out via plasma free metanephrines to prevent intraoperative hypertensive crisis."
-          }
-        ]
       }
     };
 
-    // State Variables
+    async function callGeminiApi(payload) {
+      const apiKey = "";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      const delays = [1000, 2000, 4000, 8000, 16000];
+
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`Server returned status ${response.status}`);
+          return await response.json();
+        } catch (err) {
+          if (attempt === 4) throw err;
+          await new Promise(res => setTimeout(res, delays[attempt]));
+        }
+      }
+    }
+
+    function openAiChatModal() {
+      const modal = document.getElementById('aiChatModal');
+      const topic = topicsData[activeTopicId];
+      if (topic) {
+        document.getElementById('chatActiveTopicName').innerText = topic.title;
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeAiChatModal() {
+      document.getElementById('aiChatModal').classList.add('hidden');
+    }
+
+    async function handleAiChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('aiChatInput');
+      const query = input.value.trim();
+      if (!query) return;
+
+      const useGrounding = document.getElementById('aiSearchGroundingToggle').checked;
+      const stream = document.getElementById('aiChatStream');
+      const sendBtn = document.getElementById('aiChatSendBtn');
+
+      stream.innerHTML += `
+        <div class="p-3 bg-white rounded-lg border border-slate-200 text-slate-800 text-right font-medium">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">You</span>
+          ${query}
+        </div>
+      `;
+      input.value = '';
+      stream.scrollTop = stream.scrollHeight;
+
+      const loadingId = 'loading_' + Date.now();
+      stream.innerHTML += `
+        <div id="${loadingId}" class="p-3 bg-indigo-50/60 rounded-lg border border-indigo-100 text-indigo-900 font-medium flex items-center space-x-2">
+          <i data-lucide="loader-2" class="w-4 h-4 animate-spin text-indigo-600"></i>
+          <span>Gemini 3 Flash analyzing query${useGrounding ? ' with Google Search Grounding...' : '...'}</span>
+        </div>
+      `;
+      lucide.createIcons();
+      stream.scrollTop = stream.scrollHeight;
+      sendBtn.disabled = true;
+
+      const activeTopic = topicsData[activeTopicId];
+      const contextPrompt = `You are a world-class Head & Neck Surgery professor and consultant. Answer the user's surgical question clearly and concisely.
+Active Topic Context: ${activeTopic ? activeTopic.title + ' - ' + activeTopic.subtitle : 'General Head & Neck Surgery'}.
+
+User Query: ${query}`;
+
+      const payload = {
+        contents: [{ parts: [{ text: contextPrompt }] }],
+        systemInstruction: {
+          parts: [{ text: "Act as an expert Head & Neck Oncologic Surgeon and Board Examiner. Provide concise, clear, evidence-based answers." }]
+        }
+      };
+
+      if (useGrounding) {
+        payload.tools = [{ "google_search": {} }];
+      }
+
+      try {
+        const result = await callGeminiApi(payload);
+        const candidate = result.candidates?.[0];
+        const responseText = candidate?.content?.parts?.[0]?.text || "Unable to retrieve response.";
+        
+        let sourcesHtml = '';
+        const attributions = candidate?.groundingMetadata?.groundingAttributions;
+        if (attributions && attributions.length > 0) {
+          const validSources = attributions
+            .map(a => a.web)
+            .filter(s => s && s.uri && s.title);
+          if (validSources.length > 0) {
+            sourcesHtml = `
+              <div class="mt-2 pt-2 border-t border-indigo-200 text-[10px] text-indigo-800">
+                <strong>Grounding Sources:</strong>
+                <ul class="list-disc list-inside">
+                  ${validSources.slice(0, 3).map(src => `<li><a href="${src.uri}" target="_blank" class="underline hover:text-indigo-900">${src.title}</a></li>`).join('')}
+                </ul>
+              </div>
+            `;
+          }
+        }
+
+        document.getElementById(loadingId).remove();
+        stream.innerHTML += `
+          <div class="p-3 bg-indigo-50/80 rounded-lg border border-indigo-100 text-slate-800 leading-relaxed">
+            <span class="text-[10px] uppercase font-bold text-indigo-700 block mb-1">Dr. Gemini AI</span>
+            ${responseText.replace(/\n/g, '<br>')}
+            ${sourcesHtml}
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById(loadingId).remove();
+        stream.innerHTML += `<div class="p-3 bg-red-50 text-red-800 rounded-lg border border-red-200">Error: ${err.message}</div>`;
+      } finally {
+        sendBtn.disabled = false;
+        stream.scrollTop = stream.scrollHeight;
+        lucide.createIcons();
+      }
+    }
+
+    function openAiMcqModal() {
+      document.getElementById('aiMcqModal').classList.remove('hidden');
+      if (document.getElementById('mcqContainer').children.length <= 1) {
+        generateAiMcqs();
+      }
+    }
+
+    function closeAiMcqModal() {
+      document.getElementById('aiMcqModal').classList.add('hidden');
+    }
+
+    async function generateAiMcqs() {
+      const container = document.getElementById('mcqContainer');
+      const btn = document.getElementById('refreshMcqBtn');
+      const topic = topicsData[activeTopicId];
+
+      container.innerHTML = `<div class="p-8 text-center text-emerald-700 font-bold"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Generating High-Yield Board MCQs for ${topic ? topic.title : 'Head & Neck Surgery'}...</div>`;
+      lucide.createIcons();
+      btn.disabled = true;
+
+      const prompt = `Generate 4 challenging, high-yield Multiple Choice Questions (MCQs) for surgical board review on the topic: "${topic ? topic.title : 'Head & Neck Surgery'}".
+Return a JSON array of objects. Each object must have:
+- "question": string
+- "options": array of 4 strings
+- "answerIndex": number (0 to 3)
+- "explanation": string`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "ARRAY",
+            items: {
+              type: "OBJECT",
+              properties: {
+                question: { type: "STRING" },
+                options: { type: "ARRAY", items: { type: "STRING" } },
+                answerIndex: { type: "NUMBER" },
+                explanation: { type: "STRING" }
+              },
+              required: ["question", "options", "answerIndex", "explanation"]
+            }
+          }
+        }
+      };
+
+      try {
+        const result = await callGeminiApi(payload);
+        const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        const mcqs = JSON.parse(jsonText);
+
+        container.innerHTML = mcqs.map((mcq, idx) => `
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <p class="font-bold text-slate-800">${idx + 1}. ${mcq.question}</p>
+            <div class="space-y-1 pl-2">
+              ${mcq.options.map((opt, optIdx) => `
+                <button onclick="checkMcqAnswer(this, ${optIdx}, ${mcq.answerIndex}, 'expl_${idx}')" 
+                  class="w-full text-left p-2 rounded-lg bg-white border border-slate-200 hover:bg-blue-50 hover:border-blue-300 font-medium transition text-xs">
+                  ${String.fromCharCode(65 + optIdx)}. ${opt}
+                </button>
+              `).join('')}
+            </div>
+            <div id="expl_${idx}" class="hidden p-3 bg-emerald-50 text-emerald-900 rounded-lg border border-emerald-200 font-sans mt-2">
+              <strong>Rationale:</strong> ${mcq.explanation}
+            </div>
+          </div>
+        `).join('');
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 bg-red-50 text-red-800 rounded-lg">Failed to generate MCQs: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    function checkMcqAnswer(btnEl, chosenIdx, correctIdx, explId) {
+      const parent = btnEl.parentElement;
+      const buttons = parent.querySelectorAll('button');
+      buttons.forEach((b, idx) => {
+        b.disabled = true;
+        if (idx === correctIdx) {
+          b.classList.remove('bg-white', 'border-slate-200');
+          b.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-900', 'font-bold');
+        } else if (idx === chosenIdx) {
+          b.classList.remove('bg-white', 'border-slate-200');
+          b.classList.add('bg-red-100', 'border-red-400', 'text-red-900');
+        }
+      });
+      document.getElementById(explId)?.classList.remove('hidden');
+    }
+
+    function openAiDiffDxModal() {
+      document.getElementById('aiDiffDxModal').classList.remove('hidden');
+    }
+
+    function closeAiDiffDxModal() {
+      document.getElementById('aiDiffDxModal').classList.add('hidden');
+    }
+
+    async function handleDiffDxSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('diffDxInput').value.trim();
+      const container = document.getElementById('diffDxResultContainer');
+      const btn = document.getElementById('genDiffDxBtn');
+
+      if (!input) return;
+
+      container.innerHTML = `<div class="p-8 text-center text-indigo-700 font-bold"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Analyzing Clinical Findings & Generating Differential Table...</div>`;
+      lucide.createIcons();
+      btn.disabled = true;
+
+      const prompt = `Analyze these clinical findings for a Head & Neck surgical patient: "${input}".
+Generate a structured differential diagnosis table with probability rankings, distinguishing key features, recommended initial investigations, and red flag warnings.
+Return HTML content structured as:
+<table class="w-full notes-table text-xs"><thead><tr><th>Diagnosis</th><th>Probability</th><th>Key Features</th><th>Recommended Workup</th></tr></thead><tbody>...</tbody></table>
+Followed by a red flag warning box.`;
+
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        systemInstruction: {
+          parts: [{ text: "Act as an expert Head & Neck Surgical Consultant. Output clear, clinical HTML tables and bullet points." }]
+        }
+      };
+
+      try {
+        const result = await callGeminiApi(payload);
+        const html = result.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to generate differential diagnosis.";
+
+        container.innerHTML = `
+          <div class="space-y-3 font-sans">
+            <h4 class="font-bold text-slate-800 border-b pb-1 text-xs uppercase tracking-wide">Evidence-Based Differential Workup</h4>
+            <div class="handwritten-text leading-relaxed text-slate-800">${html}</div>
+          </div>
+        `;
+      } catch (err) {
+        container.innerHTML = `<div class="p-4 bg-red-50 text-red-800 rounded-lg">Error building differential: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        lucide.createIcons();
+      }
+    }
+
+    const PLAYBOOK_DATA = {
+      thyroidectomy: {
+        title: "Total Thyroidectomy & Recurrent Laryngeal Nerve Identification",
+        steps: [
+          "Collar incision 2cm above sternal notch in natural skin crease.",
+          "Raise subplatysmal flaps superiorly to thyroid cartilage, inferiorly to sternal notch.",
+          "Separate strap muscles in midline raphe (Sternohyoid & Sternothyroid).",
+          "Ligate superior thyroid vascular pole close to gland to avoid External Branch of Superior Laryngeal Nerve (EBSLN).",
+          "Identify Recurrent Laryngeal Nerve (RLN) in Simon's Triangle (formed by CCA, Esophagus, Inferior Thyroid Artery).",
+          "Preserve Parathyroid Glands (Superior at level of cricoid; Inferior anterior to RLN)."
+        ],
+        landmarks: "Simon's Triangle, Berry's Ligament (RLN passes deep or through), Tubercle of Zuckerkandl (RLN lies medial/posterior).",
+        pearl: "Always keep dissection strictly on the true thyroid capsule ('capsular dissection') to preserve parathyroid blood supply from inferior thyroid artery branches."
+      },
+      parotidectomy: {
+        title: "Superficial Parotidectomy & Facial Nerve Trunk Identification",
+        steps: [
+          "Modified Blair or Cervico-facial incision with preauricular extension.",
+          "Raise anterior flap in sub-SMAS / sub-parotid fascia plane.",
+          "Release anterior border of SCM and dissect tail of parotid off SCM.",
+          "Locate Facial Nerve Trunk using 3 classic landmarks: Tragoid Pointer (1cm anterior & inferior), Tympanomastoid Suture Line (6-8mm inferior), Posterior Belly of Digastric.",
+          "Trace Facial Nerve branches (Temporal, Zygomatic, Buccal, Marginal Mandibular, Cervical) using nerve stimulator and tunnel technique."
+        ],
+        landmarks: "Tragoid Pointer, Tympanomastoid Suture Line, Posterior Belly of Digastric, Styloid Process.",
+        pearl: "Marginal Mandibular branch runs superficial to facial artery & vein at inferior border of mandible; take care during submandibular flap elevation."
+      },
+      neckdissection: {
+        title: "Selective Neck Dissection (Levels I-III / II-IV)",
+        steps: [
+          "Incision along Langer's lines or Apron flap.",
+          "Raise subplatysmal flap preserving Marginal Mandibular Nerve and Great Auricular Nerve if uninvolved.",
+          "Identify Spinal Accessory Nerve (CN XI) entering Level II at Erb's point / anterior SCM border.",
+          "Dissect fibrofatty lymphatic tissue off Internal Jugular Vein (IJV) and Common Carotid Artery.",
+          "Identify and preserve Hypoglossal Nerve (CN XII) and Vagus Nerve (CN X) in carotid triangle."
+        ],
+        landmarks: "Erb's Point, Carotid Bifurcation, Digastric Muscle, Omohyoid Muscle, IJV.",
+        pearl: "When dissecting Level IV at left thoracic duct junction, ligate all lymphatic tributaries to prevent post-op chyle leak."
+      },
+      tracheostomy: {
+        title: "Surgical Tracheostomy (Elective & Emergency)",
+        steps: [
+          "Horizontal skin incision midway between cricoid cartilage and sternal notch.",
+          "Divide midline linea alba and retract strap muscles laterally.",
+          "Divide or retract thyroid isthmus superiorly.",
+          "Place Bjork Flap (cricoid-directed inverted U flap) or tracheal window at 2nd - 3rd tracheal rings.",
+          "Insert cuffed tracheostomy tube under direct vision, confirm ET tube retraction and bilateral breath sounds."
+        ],
+        landmarks: "Cricoid Cartilage, 2nd & 3rd Tracheal Rings, Thyroid Isthmus.",
+        pearl: "Never place tracheal entry above 2nd tracheal ring to avoid subglottic stenosis."
+      }
+    };
+
+    function openPlaybookModal() {
+      document.getElementById('playbookModal').classList.remove('hidden');
+      switchPlaybookProc('thyroidectomy');
+    }
+
+    function closePlaybookModal() {
+      document.getElementById('playbookModal').classList.add('hidden');
+    }
+
+    function switchPlaybookProc(procKey) {
+      const data = PLAYBOOK_DATA[procKey];
+      if (!data) return;
+
+      const detailBox = document.getElementById('playbookDetailBox');
+      detailBox.innerHTML = `
+        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100 space-y-3 font-sans">
+          <h4 class="font-bold text-blue-900 text-sm border-b border-blue-200 pb-1.5">${data.title}</h4>
+          
+          <div class="space-y-1.5">
+            <strong class="text-blue-950 font-bold block">Surgical Step Checklist:</strong>
+            <ol class="list-decimal list-inside space-y-1 text-slate-800 leading-relaxed font-medium">
+              ${data.steps.map(s => `<li>${s}</li>`).join('')}
+            </ol>
+          </div>
+
+          <div class="bg-white p-3 rounded-lg border border-blue-200 space-y-1">
+            <span class="font-bold text-slate-800 block">Critical Anatomical Landmarks:</span>
+            <p class="text-slate-700">${data.landmarks}</p>
+          </div>
+
+          <div class="callout-note p-3">
+            <span class="font-bold text-sky-900 block">Surgical Pearl:</span>
+            <p class="text-sky-950 handwritten-text text-sm">${data.pearl}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function openEmergencyModal() {
+      document.getElementById('emergencyModal').classList.remove('hidden');
+    }
+
+    function closeEmergencyModal() {
+      document.getElementById('emergencyModal').classList.add('hidden');
+    }
+
+    window.openAiChatModal = openAiChatModal;
+    window.closeAiChatModal = closeAiChatModal;
+    window.handleAiChatSubmit = handleAiChatSubmit;
+    window.openAiMcqModal = openAiMcqModal;
+    window.closeAiMcqModal = closeAiMcqModal;
+    window.generateAiMcqs = generateAiMcqs;
+    window.checkMcqAnswer = checkMcqAnswer;
+    window.openAiDiffDxModal = openAiDiffDxModal;
+    window.closeAiDiffDxModal = closeAiDiffDxModal;
+    window.handleDiffDxSubmit = handleDiffDxSubmit;
+    window.openPlaybookModal = openPlaybookModal;
+    window.closePlaybookModal = closePlaybookModal;
+    window.switchPlaybookProc = switchPlaybookProc;
+    window.openEmergencyModal = openEmergencyModal;
+    window.closeEmergencyModal = closeEmergencyModal;
+
     let db = null;
     let auth = null;
     let currentUser = null;
-    let topicsData = {};
-    let activeTopicId = 'cbt';
-    let hyHighlighted = false;
-    let currentCardIndex = 0;
-    let isFlipped = false;
-    let expandedCategories = new Set(); // Tracks open/collapsed category tabs
 
-    // Load Local Storage
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'learning-head-neck-surgery-easy';
+    const STORAGE_KEY = 'head_neck_surgery_topics_v2';
+
+    let currentAudioOverview = null;
+
+    function pcm16ToWavBlob(base64Data, sampleRate = 24000) {
+      const binaryString = atob(base64Data);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      const numChannels = 1;
+      const bitsPerSample = 16;
+      const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+      const blockAlign = numChannels * (bitsPerSample / 8);
+      const dataSize = bytes.length;
+      const headerSize = 44;
+      const totalSize = headerSize + dataSize;
+
+      const buffer = new ArrayBuffer(totalSize);
+      const view = new DataView(buffer);
+
+      function writeString(v, offset, str) {
+        for (let i = 0; i < str.length; i++) {
+          v.setUint8(offset + i, str.charCodeAt(i));
+        }
+      }
+
+      writeString(view, 0, 'RIFF');
+      view.setUint32(4, 36 + dataSize, true);
+      writeString(view, 8, 'WAVE');
+      writeString(view, 12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, numChannels, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, byteRate, true);
+      view.setUint16(32, blockAlign, true);
+      view.setUint16(34, bitsPerSample, true);
+      writeString(view, 36, 'data');
+      view.setUint32(40, dataSize, true);
+
+      for (let i = 0; i < dataSize; i++) {
+        view.setUint8(headerSize + i, bytes[i]);
+      }
+
+      return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    function toggleAudioOverviewBar() {
+      const bar = document.getElementById('audioOverviewBar');
+      bar.classList.toggle('hidden');
+    }
+
+    async function callGeminiNeuralTts(textToRead, voiceName = "Kore") {
+      const apiKey = "";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+      const promptText = `Say warmly, clearly, and engagingly as a senior medical surgical professor giving a high-yield audio overview: ${textToRead}`;
+
+      const payload = {
+        contents: [{ parts: [{ text: promptText }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voiceName
+              }
+            }
+          }
+        },
+        model: "gemini-2.5-flash-preview-tts"
+      };
+
+      const delays = [1000, 2000, 4000, 8000, 16000];
+      for (let attempt = 0; attempt < 5; attempt++) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const result = await response.json();
+          const inlineData = result.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+          if (inlineData && inlineData.data) {
+            return inlineData;
+          }
+          throw new Error("No audio data returned");
+        } catch (err) {
+          if (attempt === 4) throw err;
+          await new Promise(r => setTimeout(r, delays[attempt]));
+        }
+      }
+    }
+
+    async function generateAndPlayAudioOverview() {
+      const topic = topicsData[activeTopicId];
+      if (!topic) return;
+
+      const btnText = document.getElementById('playOverviewBtnText');
+      const waveAnim = document.getElementById('soundWaveAnim');
+
+      if (currentAudioOverview && !currentAudioOverview.paused) {
+        currentAudioOverview.pause();
+        btnText.innerText = "Resume Audio";
+        waveAnim.classList.add('hidden');
+        return;
+      }
+
+      if (currentAudioOverview && currentAudioOverview.paused && currentAudioOverview.src) {
+        currentAudioOverview.play();
+        btnText.innerText = "Pause Overview";
+        waveAnim.classList.remove('hidden');
+        waveAnim.classList.add('flex');
+        return;
+      }
+
+      const voiceChoice = document.getElementById('neuralVoiceSelect').value || "Kore";
+      btnText.innerText = "Generating AI Overview...";
+      document.getElementById('audioTrackTitle').innerText = `${topic.title} (Synthesizing Audio...)`;
+
+      const overviewText = `${topic.title}. ${topic.subtitle}. ${topic.intro.replace(/<[^>]*>/g, '')}. Here are the ten high yield key takeaways: ${topic.summaryPoints?.slice(0, 5).join('. ') || ''}`;
+
+      try {
+        const audioResponse = await callGeminiNeuralTts(overviewText, voiceChoice);
+        let sampleRate = 24000;
+        if (audioResponse.mimeType && audioResponse.mimeType.includes('rate=')) {
+          const match = audioResponse.mimeType.match(/rate=(\d+)/);
+          if (match) sampleRate = parseInt(match[1], 10);
+        }
+
+        const wavBlob = pcm16ToWavBlob(audioResponse.data, sampleRate);
+        const audioUrl = URL.createObjectURL(wavBlob);
+
+        if (currentAudioOverview) {
+          currentAudioOverview.pause();
+        }
+
+        currentAudioOverview = new Audio(audioUrl);
+        const speed = parseFloat(document.getElementById('speechRateSelect').value) || 1.0;
+        currentAudioOverview.playbackRate = speed;
+
+        currentAudioOverview.onplay = () => {
+          btnText.innerText = "Pause Overview";
+          waveAnim.classList.remove('hidden');
+          waveAnim.classList.add('flex');
+          document.getElementById('audioTrackTitle').innerText = topic.title;
+        };
+
+        currentAudioOverview.onended = () => {
+          btnText.innerText = "Generate & Play Overview";
+          waveAnim.classList.add('hidden');
+        };
+
+        currentAudioOverview.play();
+      } catch (err) {
+        alert("Audio Overview Generation Error: " + err.message);
+        btnText.innerText = "Generate & Play Overview";
+        document.getElementById('audioTrackTitle').innerText = topic.title;
+      }
+    }
+
+    function stopAudioOverview() {
+      if (currentAudioOverview) {
+        currentAudioOverview.pause();
+        currentAudioOverview.currentTime = 0;
+        currentAudioOverview = null;
+      }
+      document.getElementById('playOverviewBtnText').innerText = "Generate & Play Overview";
+      document.getElementById('soundWaveAnim').classList.add('hidden');
+    }
+
+    function setAudioSpeed(speedVal) {
+      if (currentAudioOverview) {
+        currentAudioOverview.playbackRate = parseFloat(speedVal);
+      }
+    }
+
     function loadTopicsFromLocalStorage() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -951,7 +1633,6 @@
       }
     }
 
-    // Toggle Category Expansion
     function toggleCategory(catName) {
       if (expandedCategories.has(catName)) {
         expandedCategories.delete(catName);
@@ -961,7 +1642,6 @@
       renderTopicList();
     }
 
-    // Save topic to local storage and Firestore if online
     async function saveSingleTopic(topicData) {
       topicsData[topicData.id] = topicData;
       if (topicData.category) {
@@ -979,7 +1659,6 @@
       }
     }
 
-    // Delete single topic
     async function deleteTopic(topicId) {
       if (Object.keys(topicsData).length <= 1) {
         alert("You must keep at least one note topic in your library.");
@@ -1008,7 +1687,6 @@
       }
     }
 
-    // Export Vault to JSON File
     function exportVault() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(topicsData, null, 2));
       const downloadAnchor = document.createElement('a');
@@ -1019,7 +1697,6 @@
       downloadAnchor.remove();
     }
 
-    // Import Vault from JSON File
     function importVault(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -1054,7 +1731,6 @@
       reader.readAsText(file);
     }
 
-    // Reset Data
     function confirmResetStorage() {
       if (confirm("Reset library to default? This will clear custom uploaded topics.")) {
         localStorage.removeItem(STORAGE_KEY);
@@ -1068,7 +1744,6 @@
       }
     }
 
-    // Initialize Firebase Cloud Auto-Sync
     const initFirebase = async () => {
       loadTopicsFromLocalStorage();
 
@@ -1092,7 +1767,6 @@
               if (badge) badge.innerHTML = `<i data-lucide="cloud-check" class="w-3 h-3 mr-1 text-emerald-600"></i> Cloud Synced`;
               lucide.createIcons();
 
-              // Setup Firestore Snapshot Listener
               const colRef = collection(db, 'artifacts', appId, 'users', user.uid, 'surgical_topics');
               onSnapshot(colRef, (snapshot) => {
                 let cloudTopics = {};
@@ -1104,7 +1778,6 @@
                   topicsData = { ...defaultSeedTopics, ...cloudTopics };
                   saveTopicsToLocalStorage();
                 } else {
-                  // Seed Firestore with defaults
                   Object.keys(defaultSeedTopics).forEach(async (id) => {
                     await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'surgical_topics', id), defaultSeedTopics[id]);
                   });
@@ -1130,7 +1803,6 @@
       lucide.createIcons();
     };
 
-    // Home Action Handler
     function goHome() {
       const catSelect = document.getElementById('categoryFilterSelect');
       if (catSelect) catSelect.value = 'ALL';
@@ -1148,7 +1820,6 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Populate Category Dropdowns
     function initCategoryDropdowns() {
       const filterSelect = document.getElementById('categoryFilterSelect');
       const uploadSelect = document.getElementById('topicCategorySelect');
@@ -1163,7 +1834,6 @@
       }
     }
 
-    // Render Collapsible Category Tabs in Sidebar
     function renderTopicList() {
       const topicList = document.getElementById('topicList');
       const badge = document.getElementById('topicCountBadge');
@@ -1174,7 +1844,6 @@
         activeTopicId = keys[0];
       }
 
-      // Ensure active topic's category is expanded
       if (topicsData[activeTopicId] && topicsData[activeTopicId].category) {
         expandedCategories.add(topicsData[activeTopicId].category);
       }
@@ -1191,7 +1860,6 @@
         return;
       }
 
-      // Group filtered keys by category
       const grouped = {};
       filteredKeys.forEach(k => {
         const cat = topicsData[k].category || 'Miscellaneous / Others';
@@ -1199,12 +1867,10 @@
         grouped[cat].push(k);
       });
 
-      // If a specific category is selected in the dropdown, force it open
       if (selectedCat !== 'ALL') {
         expandedCategories.add(selectedCat);
       }
 
-      // Render main category collapsible tabs
       topicList.innerHTML = Object.keys(grouped).map(cat => {
         const isOpen = expandedCategories.has(cat);
         const count = grouped[cat].length;
@@ -1212,7 +1878,6 @@
 
         return `
           <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-xs">
-            <!-- Main Category Accordion Tab -->
             <button onclick="toggleCategory('${safeCat}')" 
               class="w-full flex items-center justify-between p-2.5 hover:bg-slate-100 text-slate-800 font-bold text-xs transition border-b ${
                 isOpen ? 'border-slate-200 bg-blue-50/60 text-blue-900' : 'border-transparent bg-slate-50'
@@ -1227,7 +1892,6 @@
               </div>
             </button>
 
-            <!-- Collapsible Notes under Category -->
             ${isOpen ? `
               <div class="p-1.5 space-y-1 bg-white">
                 ${grouped[cat].map(key => renderTopicButton(key)).join('')}
@@ -1256,7 +1920,6 @@
       `;
     }
 
-    // Switch Active Topic
     function switchTopic(id) {
       activeTopicId = id;
       const topic = topicsData[id];
@@ -1265,9 +1928,9 @@
       }
       renderTopicList();
       renderActiveTopic();
+      stopAudioOverview();
     }
 
-    // Render Active Topic with 10-Point Summary Section
     function renderActiveTopic() {
       const topic = topicsData[activeTopicId];
       if (!topic) return;
@@ -1293,7 +1956,6 @@
       toc.innerHTML = tocHtml;
 
       main.innerHTML = `
-        <!-- HEADER DOC TITLE CARD -->
         <div class="notebook-card p-6 sm:p-8">
           <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-4">
             <div>
@@ -1315,7 +1977,6 @@
           </p>
         </div>
 
-        <!-- SECTIONS -->
         ${topic.sections.map(s => `
           <section id="${s.id}" class="notebook-card p-6 sm:p-8 section-card">
             <h2 class="text-2xl heading-royal flex items-center space-x-3 mb-4">
@@ -1328,7 +1989,6 @@
           </section>
         `).join('')}
 
-        <!-- 10-POINT SUMMARY SECTION -->
         ${topic.summaryPoints && topic.summaryPoints.length ? `
           <section id="summary-takeaways" class="notebook-card p-6 sm:p-8 section-card border-l-4 border-l-amber-500 bg-amber-50/20">
             <div class="flex items-center justify-between mb-4 border-b border-amber-200 pb-3">
@@ -1445,27 +2105,6 @@
       reader.readAsText(file);
     }
 
-    async function callGeminiApi(payload) {
-      const apiKey = "";
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-      const delays = [1000, 2000, 4000, 8000, 16000];
-
-      for (let attempt = 0; attempt < 5; attempt++) {
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-          });
-          if (!response.ok) throw new Error(`Server returned status ${response.status}`);
-          return await response.json();
-        } catch (err) {
-          if (attempt === 4) throw err;
-          await new Promise(res => setTimeout(res, delays[attempt]));
-        }
-      }
-    }
-
     async function handleNoteGeneration(event) {
       event.preventDefault();
       
@@ -1489,12 +2128,10 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
 1. NO-LOSS / NO AGGRESSIVE SUMMARIZATION POLICY: Do NOT summarize too much, condense, or omit information. Retain ALL factual details, clinical features, anatomical boundaries, staging criteria, surgical steps, drug names/dosages, complications, and nuances from the source text. Every key concept and detail MUST be preserved.
 2. Structure and organize the full text into as many detailed, logical sections as necessary (3 to 10+ sections).
 3. Underline key terms, pathognomonic signs, diagnostic tests, and dates using <span class="underline-wavy">term</span> or <span class="emphasis-red">critical point</span>.
-4. MANDATORY VISUAL DIAGRAMS & FLOWCHARTS: Wherever algorithms, diagnostic pathways, staging systems, anatomical relationships, or surgical steps are mentioned, create visual HTML/SVG diagrams or flowcharts using styled nodes (e.g. '<div class="bg-slate-50 p-4 rounded-xl border border-slate-200 my-4"><h4 class="text-xs uppercase font-bold text-slate-500 mb-3 tracking-wider text-center font-sans font-bold">Algorithm / Pathway Diagram</h4><div class="flex flex-col md:flex-row items-center justify-between gap-2 text-xs font-sans"><div class="flow-node">Step 1</div><div class="flow-arrow">➔</div><div class="flow-node">Step 2</div></div></div>') or inline SVG schematics.
-5. Convert comparisons, classifications, or metrics into neat HTML tables formatted as: <table class="w-full notes-table text-sm"><thead><tr><th>Header1</th><th>Header2</th></tr></thead><tbody class="handwritten-text"><tr><td>Data</td><td>Data</td></tr></tbody></table>
-6. Enclose critical safety warnings/contraindications in: <div class="callout-warning p-4 mb-4"><p class="text-sm text-red-900 handwritten-text"><strong>Warning:</strong> ...</p></div>
-7. Enclose clinical pearls in: <div class="callout-note p-4 mb-4"><p class="text-sm text-sky-900 handwritten-text"><strong>> [!NOTE] Pearl:</strong> ...</p></div>
-8. Provide EXPLICITLY EXACTLY 10 high-yield summary points ("summaryPoints") highlighting the 10 most critical takeaways to remember at the end of the note without reducing the depth of the main section content.
-9. Create 4-6 interactive flashcards for self-assessment.`;
+4. MANDATORY VISUAL DIAGRAMS & FLOWCHARTS: Wherever algorithms, diagnostic pathways, staging systems, anatomical relationships, or surgical steps are mentioned, create visual HTML/SVG diagrams or flowcharts using styled nodes.
+5. Convert comparisons, classifications, or metrics into neat HTML tables.
+6. Provide EXPLICITLY EXACTLY 10 high-yield summary points ("summaryPoints") at the end of the note.
+7. Create 4-6 interactive flashcards for self-assessment.`;
 
       const userPrompt = `Topic Title: ${title}\nCategory: ${selectedCategory}\n\nSurgical Content:\n${rawText}`;
 
@@ -1522,7 +2159,7 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
           summaryPoints: {
             type: "ARRAY",
             items: { type: "STRING" },
-            description: "Exactly 10 high-yield key takeaways / important points to remember about the topic"
+            description: "Exactly 10 high-yield key takeaways"
           },
           flashcards: {
             type: "ARRAY",
@@ -1560,7 +2197,6 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
         generatedData.id = newId;
         generatedData.category = selectedCategory;
 
-        // Save into local and cloud vault
         await saveSingleTopic(generatedData);
         activeTopicId = newId;
 
@@ -1590,10 +2226,10 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
       const filename = `${topic.title.replace(/[^a-zA-Z0-9]/g, '_')}_Study_Notes.pdf`;
       
       const opt = {
-        margin:       [0.4, 0.4, 0.4, 0.4],
+        margin:       [0.5, 0.5, 0.5, 0.5],
         filename:     filename,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
         jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
         pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
       };
@@ -1613,31 +2249,13 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
     }
 
     function filterNotes() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
+      const query = document.getElementById('searchInput')?.value?.toLowerCase() || '';
       const sections = document.querySelectorAll('.section-card');
 
       sections.forEach(section => {
         const text = section.textContent.toLowerCase();
         section.style.display = text.includes(query) ? 'block' : 'none';
       });
-    }
-
-    function toggleHighYield() {
-      hyHighlighted = !hyHighlighted;
-      applyHighYieldStyle(hyHighlighted);
-    }
-
-    function applyHighYieldStyle(enable) {
-      const redElements = document.querySelectorAll('.emphasis-red, .underline-wavy');
-      const btn = document.getElementById('hyBtn');
-
-      if (enable) {
-        redElements.forEach(el => el.classList.add('high-yield-badge', 'px-1', 'rounded'));
-        btn?.classList.add('bg-amber-200', 'border-amber-400');
-      } else {
-        redElements.forEach(el => el.classList.remove('high-yield-badge', 'px-1', 'rounded'));
-        btn?.classList.remove('bg-amber-200', 'border-amber-400');
-      }
     }
 
     function toggleFlashcardModal() {
@@ -1686,7 +2304,6 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
       showCard();
     }
 
-    // Expose functions to window
     window.goHome = goHome;
     window.toggleCategory = toggleCategory;
     window.renderTopicList = renderTopicList;
@@ -1698,7 +2315,6 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
     window.handleNoteGeneration = handleNoteGeneration;
     window.downloadPDF = downloadPDF;
     window.filterNotes = filterNotes;
-    window.toggleHighYield = toggleHighYield;
     window.toggleFlashcardModal = toggleFlashcardModal;
     window.flipCard = flipCard;
     window.nextCard = nextCard;
@@ -1707,10 +2323,12 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
     window.deleteTopic = deleteTopic;
     window.exportVault = exportVault;
     window.importVault = importVault;
+    window.toggleAudioOverviewBar = toggleAudioOverviewBar;
+    window.generateAndPlayAudioOverview = generateAndPlayAudioOverview;
+    window.stopAudioOverview = stopAudioOverview;
+    window.setAudioSpeed = setAudioSpeed;
 
-    // Start App
     initFirebase();
   </script>
 </body>
 </html>
-
