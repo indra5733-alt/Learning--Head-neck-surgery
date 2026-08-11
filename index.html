@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<<link rel="manifest" href="manifest.json">
->
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Learning Head and Neck Surgery Easy</title>
@@ -134,6 +133,8 @@
       border: 2px solid #cbd5e1;
       border-radius: 8px;
       overflow: hidden;
+      width: 100%;
+      table-layout: auto;
     }
 
     .notes-table th {
@@ -148,6 +149,7 @@
     .notes-table td {
       border-bottom: 1px solid #e2e8f0;
       padding: 10px 14px;
+      word-break: break-word;
     }
 
     .notes-table tr:last-child td {
@@ -165,6 +167,7 @@
       border-radius: 12px;
       box-shadow: 3px 3px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
       position: relative;
+      margin-bottom: 1.5rem;
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -240,7 +243,7 @@
       }
 
       @page {
-        margin: 1.5cm;
+        margin: 1cm;
         size: portrait;
       }
     }
@@ -270,30 +273,30 @@
           <span class="hidden md:inline">AI Assistant</span>
         </button>
 
-        <button onclick="openAiMcqModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-xs rounded-lg shadow-sm transition">
-          <i data-lucide="help-circle" class="w-4 h-4 text-emerald-600"></i>
-          <span class="hidden md:inline">AI MCQ Quiz</span>
-        </button>
-
-        <button onclick="openEmergencyModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-900 border border-red-200 font-bold text-xs rounded-lg shadow-sm transition">
-          <i data-lucide="siren" class="w-4 h-4 text-red-600"></i>
-          <span class="hidden md:inline">Emergency Protocols</span>
-        </button>
-
-        <button onclick="toggleAudioOverviewBar()" id="audioOverviewBtn" class="flex items-center space-x-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs rounded-lg shadow-sm transition">
-          <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
-          <span>Audio Overview</span>
-        </button>
-
+        <!-- Upload / New Topic Button -->
         <button onclick="openUploadModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-sm transition">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span>+ Upload / New Topic</span>
         </button>
 
-        <button id="downloadPdfBtn" onclick="downloadPDF()" class="flex items-center space-x-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow-sm transition">
-          <i data-lucide="file-down" class="w-4 h-4"></i>
-          <span>Download PDF</span>
-        </button>
+        <!-- Direct PDF Download Dropdown / Buttons -->
+        <div class="relative group">
+          <button id="downloadPdfBtn" onclick="downloadPDF(1)" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow-sm transition">
+            <i data-lucide="file-down" class="w-4 h-4"></i>
+            <span>Download PDF</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 ml-0.5"></i>
+          </button>
+          <div class="hidden group-hover:block absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 text-xs">
+            <button onclick="downloadPDF(1)" class="w-full text-left px-4 py-2 hover:bg-emerald-50 text-slate-800 font-semibold flex items-center space-x-2">
+              <i data-lucide="file-text" class="w-4 h-4 text-emerald-600"></i>
+              <span>Download PDF (Standard Fit)</span>
+            </button>
+            <button onclick="downloadPDF(2)" class="w-full text-left px-4 py-2 hover:bg-emerald-50 text-slate-800 font-semibold flex items-center space-x-2 border-t border-slate-100">
+              <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
+              <span>Download PDF (High Quality / Multi-Page)</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -2220,19 +2223,20 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
       }
     }
 
-    function downloadPDF() {
+    function downloadPDF(mode = 1) {
       const element = document.getElementById('notesContent');
       const btn = document.getElementById('downloadPdfBtn');
       const topic = topicsData[activeTopicId];
       const filename = `${topic.title.replace(/[^a-zA-Z0-9]/g, '_')}_Study_Notes.pdf`;
       
+      // Mode 1: Standard Fit (Fit to single/few continuous pages), Mode 2: Multi-Page High Quality (split naturally)
       const opt = {
-        margin:       [0.5, 0.5, 0.5, 0.5],
+        margin:       [0.4, 0.4, 0.4, 0.4],
         filename:     filename,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        image:        { type: 'jpeg', quality: mode === 2 ? 0.98 : 0.92 },
+        html2canvas:  { scale: mode === 2 ? 2 : 1.5, useCORS: true, logging: false, letterRendering: true, windowWidth: 1200 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
+        pagebreak:    { mode: mode === 2 ? ['avoid-all', 'css', 'legacy'] : ['css'] }
       };
 
       const originalText = btn.innerHTML;
