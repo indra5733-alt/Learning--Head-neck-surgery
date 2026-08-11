@@ -12,8 +12,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Kalam:wght@400;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- HTML2PDF Library for Direct PDF Exporting -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <!-- Mammoth.js for Word (.docx / .doc) Text Extraction -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <!-- PDF.js for PDF Text Extraction -->
@@ -42,7 +40,6 @@
       color: #1f2937;
     }
 
-    /* Headings */
     .heading-royal {
       color: var(--color-royal-blue);
       font-family: var(--font-heading);
@@ -74,13 +71,6 @@
       font-weight: 700;
     }
 
-    .high-yield-badge {
-      background-color: #fef3c7;
-      border: 1px solid #f59e0b;
-      color: #92400e;
-      font-family: var(--font-handwriting);
-    }
-
     /* Callout Boxes */
     .callout-note {
       background-color: #f0f9ff;
@@ -92,13 +82,6 @@
     .callout-warning {
       background-color: #fef2f2;
       border-left: 5px solid #dc2626;
-      border-radius: 0 8px 8px 0;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
-    }
-
-    .callout-tip {
-      background-color: #f0fdf4;
-      border-left: 5px solid #16a34a;
       border-radius: 0 8px 8px 0;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.03);
     }
@@ -126,7 +109,6 @@
       font-size: 1.2rem;
     }
 
-    /* Table Styling */
     .notes-table {
       border-collapse: separate;
       border-spacing: 0;
@@ -134,7 +116,6 @@
       border-radius: 8px;
       overflow: hidden;
       width: 100%;
-      table-layout: auto;
     }
 
     .notes-table th {
@@ -149,7 +130,6 @@
     .notes-table td {
       border-bottom: 1px solid #e2e8f0;
       padding: 10px 14px;
-      word-break: break-word;
     }
 
     .notes-table tr:last-child td {
@@ -160,7 +140,6 @@
       background-color: rgba(255, 255, 255, 0.7);
     }
 
-    /* Card Notebook Styling */
     .notebook-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
@@ -168,8 +147,7 @@
       box-shadow: 3px 3px 12px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.02);
       position: relative;
       margin-bottom: 1.5rem;
-      page-break-inside: avoid;
-      break-inside: avoid;
+      page-break-inside: avoid !important;
     }
 
     .notebook-card::before {
@@ -183,7 +161,7 @@
       background: linear-gradient(to bottom, var(--color-royal-blue), var(--color-dark-cyan));
     }
 
-    /* Speech Wave Animation */
+    /* Sound Wave Animation */
     .sound-wave-bar {
       display: inline-block;
       width: 3px;
@@ -198,54 +176,6 @@
     @keyframes wave {
       0%, 100% { height: 6px; }
       50% { height: 16px; }
-    }
-
-    @media print {
-      body {
-        background: #ffffff !important;
-        background-image: none !important;
-        color: #000000 !important;
-        font-size: 11pt;
-      }
-
-      .no-print {
-        display: none !important;
-      }
-
-      .notebook-card {
-        border: 1px solid #ccc !important;
-        box-shadow: none !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        margin-bottom: 2rem !important;
-      }
-
-      .notebook-card::before {
-        display: none;
-      }
-
-      .heading-royal {
-        color: #1e3a8a !important;
-      }
-
-      .subheading-cyan {
-        color: #0e7490 !important;
-      }
-
-      .underline-wavy {
-        text-decoration: underline !important;
-        color: #b91c1c !important;
-      }
-
-      a {
-        text-decoration: none !important;
-        color: inherit !important;
-      }
-
-      @page {
-        margin: 1cm;
-        size: portrait;
-      }
     }
   </style>
 </head>
@@ -273,30 +203,25 @@
           <span class="hidden md:inline">AI Assistant</span>
         </button>
 
-        <!-- Upload / New Topic Button -->
+        <button onclick="openAiMcqModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="help-circle" class="w-4 h-4 text-emerald-600"></i>
+          <span class="hidden md:inline">AI MCQ Quiz</span>
+        </button>
+
+        <button onclick="openEmergencyModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-900 border border-red-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="siren" class="w-4 h-4 text-red-600"></i>
+          <span class="hidden md:inline">Emergency Protocols</span>
+        </button>
+
+        <button onclick="toggleAudioOverviewBar()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs rounded-lg shadow-sm transition">
+          <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+          <span>Audio Overview</span>
+        </button>
+
         <button onclick="openUploadModal()" class="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs sm:text-sm rounded-lg shadow-sm transition">
           <i data-lucide="plus-circle" class="w-4 h-4"></i>
           <span>+ Upload / New Topic</span>
         </button>
-
-        <!-- Direct PDF Download Dropdown / Buttons -->
-        <div class="relative group">
-          <button id="downloadPdfBtn" onclick="downloadPDF(1)" class="flex items-center space-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs sm:text-sm rounded-lg shadow-sm transition">
-            <i data-lucide="file-down" class="w-4 h-4"></i>
-            <span>Download PDF</span>
-            <i data-lucide="chevron-down" class="w-3 h-3 ml-0.5"></i>
-          </button>
-          <div class="hidden group-hover:block absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-xl border border-slate-200 py-1 z-50 text-xs">
-            <button onclick="downloadPDF(1)" class="w-full text-left px-4 py-2 hover:bg-emerald-50 text-slate-800 font-semibold flex items-center space-x-2">
-              <i data-lucide="file-text" class="w-4 h-4 text-emerald-600"></i>
-              <span>Download PDF (Standard Fit)</span>
-            </button>
-            <button onclick="downloadPDF(2)" class="w-full text-left px-4 py-2 hover:bg-emerald-50 text-slate-800 font-semibold flex items-center space-x-2 border-t border-slate-100">
-              <i data-lucide="layers" class="w-4 h-4 text-blue-600"></i>
-              <span>Download PDF (High Quality / Multi-Page)</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </header>
@@ -768,14 +693,14 @@
     import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, collection, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // Application State Variables
     let topicsData = {};
     let activeTopicId = 'cbt';
     let expandedCategories = new Set();
     let currentCardIndex = 0;
     let isFlipped = false;
-    let hyHighlighted = false;
+    let currentAudioOverview = null;
 
-    // Defined List of Head & Neck Surgery Categories
     const CATEGORIES = [
       "Basic sciences",
       "Anatomy",
@@ -801,9 +726,9 @@
         id: 'cbt',
         title: 'Carotid Body Tumors (Chemodectomas)',
         category: 'Neck',
-        subtitle: 'Complete Comprehensive Medical Study Guide & Practice Notes',
+        subtitle: 'Exhaustive Comprehensive Medical Study Guide & Operative Notes',
         origin: 'Origin: Parasympathetic Ganglia | Bifurcation of CCA',
-        intro: 'Carotid Body Tumors (<span class="underline-wavy">CBTs</span>) are rare, highly vascularized neuroendocrine tumors arising from the non-chromaffin paraganglion cells located at the carotid artery bifurcation. This study guide outlines their clinical features, mandatory diagnostic algorithms, classification, and surgical strategies.',
+        intro: 'Carotid Body Tumors (<span class="underline-wavy">CBTs</span>) are rare, highly vascularized neuroendocrine tumors arising from the non-chromaffin paraganglion cells located at the carotid artery bifurcation. This study guide outlines their clinical features, mandatory diagnostic algorithms, classification, and surgical strategies in full exhaustive detail.',
         sections: [
           {
             id: 'clinical-presentation',
@@ -928,87 +853,6 @@
                 </div>
               </div>
             `
-          },
-          {
-            id: 'imaging-modalities',
-            icon: 'scan',
-            title: '3. High-Resolution & Functional Imaging',
-            html: `
-              <div class="overflow-x-auto mb-6">
-                <table class="w-full notes-table text-sm">
-                  <thead>
-                    <tr>
-                      <th class="text-left">Imaging Modality</th>
-                      <th class="text-left">Key Radiological Findings</th>
-                      <th class="text-left">Pathognomonic Sign</th>
-                    </tr>
-                  </thead>
-                  <tbody class="handwritten-text">
-                    <tr>
-                      <td class="font-bold text-blue-900">CECT / CT Angiography</td>
-                      <td>Well-defined intensely enhancing mass at bifurcation</td>
-                      <td>
-                        <span class="underline-wavy">"Lightbulb Sign"</span> (intense enhancement)<br>
-                        <span class="emphasis-red">"Lyre Sign"</span> (splaying of ICA and ECA)
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-blue-900">MRI</td>
-                      <td>Soft tissue margins; flow voids on T1/T2 for tumors >2cm</td>
-                      <td><span class="emphasis-red">"Salt-and-Pepper" Pattern</span> (flow voids + subacute hemorrhage)</td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-blue-900">Ga-68 DOTATATE PET-CT</td>
-                      <td>Somatostatin receptor type 2 (SSTR2) overexpression</td>
-                      <td>Highest sensitivity for multifocal/metastatic disease & <span class="underline-wavy">SDHx mutations</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            `
-          },
-          {
-            id: 'shamblin-class',
-            icon: 'layers',
-            title: '4. The Shamblin Classification System',
-            html: `
-              <div class="overflow-x-auto mb-6">
-                <table class="w-full notes-table text-sm">
-                  <thead>
-                    <tr>
-                      <th>Group</th>
-                      <th>Encasement</th>
-                      <th>Adherence & Dissection</th>
-                      <th>Risk Level</th>
-                    </tr>
-                  </thead>
-                  <tbody class="handwritten-text">
-                    <tr>
-                      <td class="font-bold text-center text-blue-900">Group I</td>
-                      <td>Minimal vessel contact</td>
-                      <td>Easily separated in subadventitial plane</td>
-                      <td><span class="text-emerald-700 font-bold">Low Risk</span></td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-center text-blue-900">Group II</td>
-                      <td><span class="underline-wavy">Partially encases</span> bifurcation</td>
-                      <td>Intimately adherent; requires subadventitial peel</td>
-                      <td><span class="text-amber-700 font-bold">Moderate Risk</span></td>
-                    </tr>
-                    <tr>
-                      <td class="font-bold text-center text-blue-900">Group III</td>
-                      <td><span class="emphasis-red">Complete 360° Encasement</span></td>
-                      <td>Fused with vessel adventitia; high vascular tear risk</td>
-                      <td><span class="emphasis-red">High Risk</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="p-4 bg-red-50 rounded-xl border border-red-200 text-sm handwritten-text">
-                <span class="font-bold text-red-900">The 270-Degree Encasement Rule:</span> MRI encasement of <span class="emphasis-red">≥ 270°</span> predicts inability to safely peel tumor off adventitia, indicating high likelihood of requiring <span class="underline-wavy">ICA resection & reconstruction</span>.
-              </div>
-            `
           }
         ],
         summaryPoints: [
@@ -1104,12 +948,12 @@
           <span>Gemini 3 Flash analyzing query${useGrounding ? ' with Google Search Grounding...' : '...'}</span>
         </div>
       `;
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
       stream.scrollTop = stream.scrollHeight;
       sendBtn.disabled = true;
 
       const activeTopic = topicsData[activeTopicId];
-      const contextPrompt = `You are a world-class Head & Neck Surgery professor and consultant. Answer the user's surgical question clearly and concisely.
+      const contextPrompt = `You are a world-class Head & Neck Surgery professor and senior consultant. Answer the user's surgical query in FULL, EXHAUSTIVE, step-by-step detail. Do not leave out anatomical boundaries, staging criteria, surgical steps, nerve landmarks, or complications. Provide extensive clinical depth.
 Active Topic Context: ${activeTopic ? activeTopic.title + ' - ' + activeTopic.subtitle : 'General Head & Neck Surgery'}.
 
 User Query: ${query}`;
@@ -1117,7 +961,7 @@ User Query: ${query}`;
       const payload = {
         contents: [{ parts: [{ text: contextPrompt }] }],
         systemInstruction: {
-          parts: [{ text: "Act as an expert Head & Neck Oncologic Surgeon and Board Examiner. Provide concise, clear, evidence-based answers." }]
+          parts: [{ text: "Act as an expert Head & Neck Oncologic Surgeon and Board Examiner. Provide exhaustive, evidence-based, thorough answers with no omitted details." }]
         }
       };
 
@@ -1162,7 +1006,7 @@ User Query: ${query}`;
       } finally {
         sendBtn.disabled = false;
         stream.scrollTop = stream.scrollHeight;
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1183,7 +1027,7 @@ User Query: ${query}`;
       const topic = topicsData[activeTopicId];
 
       container.innerHTML = `<div class="p-8 text-center text-emerald-700 font-bold"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Generating High-Yield Board MCQs for ${topic ? topic.title : 'Head & Neck Surgery'}...</div>`;
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
       btn.disabled = true;
 
       const prompt = `Generate 4 challenging, high-yield Multiple Choice Questions (MCQs) for surgical board review on the topic: "${topic ? topic.title : 'Head & Neck Surgery'}".
@@ -1191,7 +1035,7 @@ Return a JSON array of objects. Each object must have:
 - "question": string
 - "options": array of 4 strings
 - "answerIndex": number (0 to 3)
-- "explanation": string`;
+- "explanation": string (provide full, thorough clinical rationale)`;
 
       const payload = {
         contents: [{ parts: [{ text: prompt }] }],
@@ -1238,7 +1082,7 @@ Return a JSON array of objects. Each object must have:
         container.innerHTML = `<div class="p-4 bg-red-50 text-red-800 rounded-lg">Failed to generate MCQs: ${err.message}</div>`;
       } finally {
         btn.disabled = false;
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1275,11 +1119,11 @@ Return a JSON array of objects. Each object must have:
       if (!input) return;
 
       container.innerHTML = `<div class="p-8 text-center text-indigo-700 font-bold"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Analyzing Clinical Findings & Generating Differential Table...</div>`;
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
       btn.disabled = true;
 
       const prompt = `Analyze these clinical findings for a Head & Neck surgical patient: "${input}".
-Generate a structured differential diagnosis table with probability rankings, distinguishing key features, recommended initial investigations, and red flag warnings.
+Generate a structured differential diagnosis table with probability rankings, distinguishing key features, recommended initial investigations, and red flag warnings. Provide exhaustive depth.
 Return HTML content structured as:
 <table class="w-full notes-table text-xs"><thead><tr><th>Diagnosis</th><th>Probability</th><th>Key Features</th><th>Recommended Workup</th></tr></thead><tbody>...</tbody></table>
 Followed by a red flag warning box.`;
@@ -1305,7 +1149,7 @@ Followed by a red flag warning box.`;
         container.innerHTML = `<div class="p-4 bg-red-50 text-red-800 rounded-lg">Error building differential: ${err.message}</div>`;
       } finally {
         btn.disabled = false;
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
     }
 
@@ -1406,35 +1250,6 @@ Followed by a red flag warning box.`;
     function closeEmergencyModal() {
       document.getElementById('emergencyModal').classList.add('hidden');
     }
-
-    window.openAiChatModal = openAiChatModal;
-    window.closeAiChatModal = closeAiChatModal;
-    window.handleAiChatSubmit = handleAiChatSubmit;
-    window.openAiMcqModal = openAiMcqModal;
-    window.closeAiMcqModal = closeAiMcqModal;
-    window.generateAiMcqs = generateAiMcqs;
-    window.checkMcqAnswer = checkMcqAnswer;
-    window.openAiDiffDxModal = openAiDiffDxModal;
-    window.closeAiDiffDxModal = closeAiDiffDxModal;
-    window.handleDiffDxSubmit = handleDiffDxSubmit;
-    window.openPlaybookModal = openPlaybookModal;
-    window.closePlaybookModal = closePlaybookModal;
-    window.switchPlaybookProc = switchPlaybookProc;
-    window.openEmergencyModal = openEmergencyModal;
-    window.closeEmergencyModal = closeEmergencyModal;
-
-    let db = null;
-    let auth = null;
-    let currentUser = null;
-
-    if (window.pdfjsLib) {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'learning-head-neck-surgery-easy';
-    const STORAGE_KEY = 'head_neck_surgery_topics_v2';
-
-    let currentAudioOverview = null;
 
     function pcm16ToWavBlob(base64Data, sampleRate = 24000) {
       const binaryString = atob(base64Data);
@@ -1614,6 +1429,17 @@ Followed by a red flag warning box.`;
       }
     }
 
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'learning-head-neck-surgery-easy';
+    const STORAGE_KEY = 'head_neck_surgery_topics_v2';
+
     function loadTopicsFromLocalStorage() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -1769,7 +1595,7 @@ Followed by a red flag warning box.`;
             if (user && db) {
               const badge = document.getElementById('syncStatusBadge');
               if (badge) badge.innerHTML = `<i data-lucide="cloud-check" class="w-3 h-3 mr-1 text-emerald-600"></i> Cloud Synced`;
-              lucide.createIcons();
+              if (window.lucide) lucide.createIcons();
 
               const colRef = collection(db, 'artifacts', appId, 'users', user.uid, 'surgical_topics');
               onSnapshot(colRef, (snapshot) => {
@@ -1804,23 +1630,18 @@ Followed by a red flag warning box.`;
       renderTopicList();
       renderActiveTopic();
       updateTextStats();
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     };
 
     function goHome() {
       const catSelect = document.getElementById('categoryFilterSelect');
       if (catSelect) catSelect.value = 'ALL';
       
-      const searchInput = document.getElementById('searchInput');
-      if (searchInput) searchInput.value = '';
-      
       const keys = Object.keys(topicsData);
       activeTopicId = keys.includes('cbt') ? 'cbt' : (keys[0] || 'cbt');
 
       renderTopicList();
       renderActiveTopic();
-      filterNotes();
-
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1905,7 +1726,7 @@ Followed by a red flag warning box.`;
         `;
       }).join('');
 
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     function renderTopicButton(key) {
@@ -2014,8 +1835,7 @@ Followed by a red flag warning box.`;
         ` : ''}
       `;
 
-      lucide.createIcons();
-      if (hyHighlighted) applyHighYieldStyle(true);
+      if (window.lucide) lucide.createIcons();
     }
 
     function openUploadModal() {
@@ -2123,19 +1943,18 @@ Followed by a red flag warning box.`;
       genBtn.disabled = true;
       genBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Formatting Notes...</span>`;
       statusText.innerText = "Processing document with Gemini AI Engine...";
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
 
-      const systemPrompt = `You are a world-class surgical educator, topper, note maker, and medical instruction designer specializing in Head & Neck Surgery study notes.
+      const systemPrompt = `You are a world-class surgical educator and note maker specializing in Head & Neck Surgery study notes.
 Transform the provided surgical text into a comprehensive, highly structured JSON payload for rendering as aesthetic handwritten medical study notes.
 
 STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
-1. NO-LOSS / NO AGGRESSIVE SUMMARIZATION POLICY: Do NOT summarize too much, condense, or omit information. Retain ALL factual details, clinical features, anatomical boundaries, staging criteria, surgical steps, drug names/dosages, complications, and nuances from the source text. Every key concept and detail MUST be preserved.
-2. Structure and organize the full text into as many detailed, logical sections as necessary (3 to 10+ sections).
-3. Underline key terms, pathognomonic signs, diagnostic tests, and dates using <span class="underline-wavy">term</span> or <span class="emphasis-red">critical point</span>.
-4. MANDATORY VISUAL DIAGRAMS & FLOWCHARTS: Wherever algorithms, diagnostic pathways, staging systems, anatomical relationships, or surgical steps are mentioned, create visual HTML/SVG diagrams or flowcharts using styled nodes.
-5. Convert comparisons, classifications, or metrics into neat HTML tables.
-6. Provide EXPLICITLY EXACTLY 10 high-yield summary points ("summaryPoints") at the end of the note.
-7. Create 4-6 interactive flashcards for self-assessment.`;
+1. Retain ALL factual details, clinical features, anatomical boundaries, staging criteria, surgical steps, drug names/dosages, complications, and nuances. Provide LONG, EXHAUSTIVE, DETAILED explanations.
+2. Structure and organize into 3 to 10+ logical sections with extensive detail.
+3. Underline key terms using <span class="underline-wavy">term</span> or <span class="emphasis-red">critical point</span>.
+4. Convert comparisons or metrics into neat HTML tables formatted as: <table class="w-full notes-table text-sm"><thead><tr><th>Header1</th><th>Header2</th></tr></thead><tbody class="handwritten-text"><tr><td>Data</td><td>Data</td></tr></tbody></table>
+5. Provide EXACTLY 10 high-yield summary points ("summaryPoints") at the end.
+6. Create 4-6 interactive flashcards for self-assessment.`;
 
       const userPrompt = `Topic Title: ${title}\nCategory: ${selectedCategory}\n\nSurgical Content:\n${rawText}`;
 
@@ -2219,48 +2038,8 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
       } finally {
         genBtn.disabled = false;
         genBtn.innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Generate & Save Notes</span>`;
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
       }
-    }
-
-    function downloadPDF(mode = 1) {
-      const element = document.getElementById('notesContent');
-      const btn = document.getElementById('downloadPdfBtn');
-      const topic = topicsData[activeTopicId];
-      const filename = `${topic.title.replace(/[^a-zA-Z0-9]/g, '_')}_Study_Notes.pdf`;
-      
-      // Mode 1: Standard Fit (Fit to single/few continuous pages), Mode 2: Multi-Page High Quality (split naturally)
-      const opt = {
-        margin:       [0.4, 0.4, 0.4, 0.4],
-        filename:     filename,
-        image:        { type: 'jpeg', quality: mode === 2 ? 0.98 : 0.92 },
-        html2canvas:  { scale: mode === 2 ? 2 : 1.5, useCORS: true, logging: false, letterRendering: true, windowWidth: 1200 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait', compress: true },
-        pagebreak:    { mode: mode === 2 ? ['avoid-all', 'css', 'legacy'] : ['css'] }
-      };
-
-      const originalText = btn.innerHTML;
-      btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Generating...</span>`;
-      lucide.createIcons();
-
-      html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = originalText;
-        lucide.createIcons();
-      }).catch(err => {
-        btn.innerHTML = originalText;
-        lucide.createIcons();
-        window.print();
-      });
-    }
-
-    function filterNotes() {
-      const query = document.getElementById('searchInput')?.value?.toLowerCase() || '';
-      const sections = document.querySelectorAll('.section-card');
-
-      sections.forEach(section => {
-        const text = section.textContent.toLowerCase();
-        section.style.display = text.includes(query) ? 'block' : 'none';
-      });
     }
 
     function toggleFlashcardModal() {
@@ -2309,6 +2088,7 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
       showCard();
     }
 
+    // Bind all functions to window object for inline HTML event handlers
     window.goHome = goHome;
     window.toggleCategory = toggleCategory;
     window.renderTopicList = renderTopicList;
@@ -2318,8 +2098,21 @@ STRICT NO-LOSS & EXHAUSTIVE CONTENT RULES:
     window.updateTextStats = updateTextStats;
     window.handleFileSelect = handleFileSelect;
     window.handleNoteGeneration = handleNoteGeneration;
-    window.downloadPDF = downloadPDF;
-    window.filterNotes = filterNotes;
+    window.openAiChatModal = openAiChatModal;
+    window.closeAiChatModal = closeAiChatModal;
+    window.handleAiChatSubmit = handleAiChatSubmit;
+    window.openAiMcqModal = openAiMcqModal;
+    window.closeAiMcqModal = closeAiMcqModal;
+    window.generateAiMcqs = generateAiMcqs;
+    window.checkMcqAnswer = checkMcqAnswer;
+    window.openAiDiffDxModal = openAiDiffDxModal;
+    window.closeAiDiffDxModal = closeAiDiffDxModal;
+    window.handleDiffDxSubmit = handleDiffDxSubmit;
+    window.openPlaybookModal = openPlaybookModal;
+    window.closePlaybookModal = closePlaybookModal;
+    window.switchPlaybookProc = switchPlaybookProc;
+    window.openEmergencyModal = openEmergencyModal;
+    window.closeEmergencyModal = closeEmergencyModal;
     window.toggleFlashcardModal = toggleFlashcardModal;
     window.flipCard = flipCard;
     window.nextCard = nextCard;
